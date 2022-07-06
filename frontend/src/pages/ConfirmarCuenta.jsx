@@ -13,6 +13,7 @@ function ConfirmarCuenta() {
   useEffect(() => {
     const confirmarCuentaToken = async () => {
       try {
+        //TODO: Mover hacia un cliente axios
         const url = `http://localhost:4000/api/usuarios/confirmar/${id}`;
         const { data } = await axios(url);
 
@@ -22,10 +23,12 @@ function ConfirmarCuenta() {
         });
         setCuentaConfirmada(true)
       } catch (error) {
-        setAlerta({
-          msg: error.response.data.msg,
-          error: true,
-        });
+        setTimeout(() => {
+          setAlerta({
+            msg: error.response.data.msg,
+            error: true,
+          });
+        }, 40000);
       }
     };
 
