@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import axios from "axios";
 import Alerta from "../components/Alerta";
+import clienteAxios from "../config/clienteAxios";
 
 function NuevoPassword() {
   const [password, setPassword] = useState("");
   const [tokenValido, setTokenValido] = useState(false);
   const [alerta, setAlerta] = useState({});
-  const [passwordModificado, setPasswordModificado] = useState(false)
+  const [passwordModificado, setPasswordModificado] = useState(false);
 
   const params = useParams();
   const { token } = params;
@@ -23,13 +23,13 @@ function NuevoPassword() {
     }
 
     try {
-      const url = `http://localhost:4000/api/usuarios/olvide-password/${token}`;
-      const { data } = await axios.post(url, { password });
+      const url = `/usuarios/olvide-password/${token}`;
+      const { data } = await clienteAxios.post(url, { password });
       setAlerta({
         msg: data.msg,
         error: false,
       });
-      setPasswordModificado(true)
+      setPasswordModificado(true);
     } catch (error) {
       setAlerta({
         msg: error.response.data.msg,
@@ -41,10 +41,7 @@ function NuevoPassword() {
   useEffect(() => {
     const comprobarToken = async () => {
       try {
-        //TODO: Mover hacia un cliente axios
-        await axios(
-          `http://localhost:4000/api/usuarios/olvide-password/${token}`
-        );
+        await clienteAxios(`/usuarios/olvide-password/${token}`);
         setTokenValido(true);
       } catch (error) {
         setAlerta({
