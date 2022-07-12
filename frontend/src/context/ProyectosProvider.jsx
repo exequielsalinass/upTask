@@ -72,6 +72,14 @@ const ProyectosProvider = ({ children }) => {
     }
   };
 
+  const editarProyecto = async proyecto => {
+
+  }
+
+  const nuevoProyecto = async proyecto => {
+
+  }
+
   const obtenerProyecto = async (id) => {
     setCargando(true)
     try {
