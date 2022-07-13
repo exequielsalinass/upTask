@@ -43,6 +43,53 @@ const ProyectosProvider = ({ children }) => {
   };
 
   const submitProyecto = async (proyecto) => {
+    if (proyecto.id) {
+      await editarProyecto(proyecto);
+    } else {
+      await nuevoProyecto(proyecto);
+    }
+  };
+
+  const editarProyecto = async (proyecto) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const config = {
+        headers: {
+          "Contente-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      const { data } = await clienteAxios.put(
+        `/proyectos/${proyecto.id}`,
+        proyecto,
+        config
+      );
+      // Sincronizar el state
+      const proyectosActualizados = proyectos.map((proyectoState) =>
+        proyectoState._id === data._id ? data : proyectoState
+      );
+      setProyectos(proyectosActualizados)
+
+      // Mostrar el mensaje de alerta
+      setAlerta({
+        msg: "Proyecto Actualizado Correctamente",
+        error: false,
+      });
+
+      // Redireccionar
+      setTimeout(() => {
+        setAlerta({});
+        navigate("/proyectos");
+      }, 3000);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const nuevoProyecto = async (proyecto) => {
     try {
       const token = localStorage.getItem("token");
       if (!token) return;
@@ -72,16 +119,8 @@ const ProyectosProvider = ({ children }) => {
     }
   };
 
-  const editarProyecto = async proyecto => {
-
-  }
-
-  const nuevoProyecto = async proyecto => {
-
-  }
-
   const obtenerProyecto = async (id) => {
-    setCargando(true)
+    setCargando(true);
     try {
       const token = localStorage.getItem("token");
       if (!token) return;
@@ -94,11 +133,11 @@ const ProyectosProvider = ({ children }) => {
       };
 
       const { data } = await clienteAxios(`/proyectos/${id}`, config);
-      setProyecto(data)
+      setProyecto(data);
     } catch (error) {
       console.log(error);
     }
-    setCargando(false)
+    setCargando(false);
   };
 
   return (
@@ -110,7 +149,7 @@ const ProyectosProvider = ({ children }) => {
         submitProyecto,
         obtenerProyecto,
         proyecto,
-        cargando
+        cargando,
       }}
     >
       {children}
