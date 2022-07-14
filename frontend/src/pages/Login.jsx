@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom'
 import Alerta from '../components/Alerta'
 import clienteAxios from '../config/clienteAxios';
@@ -12,6 +12,8 @@ function Login() {
 
   // Importar datos del context
   const { setAuth } = useAuth()
+
+  const navigate = useNavigate()
 
   const handleSubmit = async e => {
     e.preventDefault()
@@ -29,6 +31,7 @@ function Login() {
       setAlerta({})
       localStorage.setItem('token', data.token)
       setAuth(data)
+      navigate('/')
     } catch (error) {
       setAlerta({
         msg: error.response.data.msg,
