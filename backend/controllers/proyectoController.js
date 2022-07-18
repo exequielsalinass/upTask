@@ -1,4 +1,5 @@
 import Proyecto from "../models/Proyecto.js";
+import Usuario from '../models/Usuario.js'
 
 const obtenerProyectos = async (req, res) => {
   const proyectos = await Proyecto.find()
@@ -90,7 +91,38 @@ const eliminarProyecto = async (req, res) => {
   }
 };
 
-const agregarColaborador = async (req, res) => {};
+const buscarColaborador = async (req, res) => {
+  const { email } = req.body
+
+  const usuario = await Usuario.findOne({email}).select('-confirmado -createdAt -password -token -updatedAt -__v') //* findOne --> para encontrar un campo --/ Email
+
+  if(!usuario) {
+    const error = new Error('Usuario no encontrado');
+    return res.status(404).json({msg: error.message})
+  }
+
+  // El colaborador no es el admin del proyecto
+  if(proyecto.creador.toString() === usuario.id.toString()) {
+    const error = new Error('El Creador del Proyecto, no puede ser colaborador');
+    return res.status(404).json({msg: error.message})
+  }
+};
+
+const agregarColaborador = async (req, res) => {
+  const proyecto = await Proyecto.findById(req.params.id);
+
+  if(!proyecto) {
+    const error = new Error('Proyecto No Encontrado')
+    return res.status(404).json({msg: error.message})
+  }
+
+  if (proyecto.creador.toString() !== req.usuario._id.toString()) {
+    const error = new Error('Acción no válida')
+    return res.status(404).json({msg: error.message})
+  }
+
+  console.log(req.body)
+};
 
 const eliminarColaborador = async (req, res) => {};
 
@@ -100,6 +132,7 @@ export {
   nuevoProyecto,
   editarProyecto,
   eliminarProyecto,
+  buscarColaborador,
   eliminarColaborador,
   agregarColaborador,
 };

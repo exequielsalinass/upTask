@@ -12,6 +12,7 @@ const ProyectosProvider = ({ children }) => {
   const [modalFormularioTarea, setModalFormularioTarea] = useState(false);
   const [tarea, setTarea] = useState({});
   const [modalEliminarTarea, setModalEliminarTarea] = useState(false)
+  const [colaborador, setColaborador] = useState({})
 
   const navigate = useNavigate();
 
@@ -138,7 +139,10 @@ const ProyectosProvider = ({ children }) => {
       const { data } = await clienteAxios(`/proyectos/${id}`, config);
       setProyecto(data);
     } catch (error) {
-      console.log(error);
+      setAlerta({
+        msg: error.response.data.msg,
+        error: true
+      })
     }
     setCargando(false);
   };
@@ -292,6 +296,54 @@ const ProyectosProvider = ({ children }) => {
     }
   }
 
+  const submitColaborador = async email => {
+    setCargando(true)
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      const { data } = await clienteAxios.post('/proyectos/colaboradores', { email }, config)
+      
+      setColaborador(data)
+      setAlerta({})
+    } catch (error) {
+      setAlerta({
+        msg: error.response.data.msg,
+        error: true
+      })
+    } finally {
+      setCargando(false)
+    }
+  }
+
+  const agregarColaborador = async (email) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      const { data } = await clienteAxios.post(`/proyectos/colaboradores/${proyecto._id}`, email , config)
+
+      console.log(data)
+
+    } catch (error) {
+      console.log(error.response)
+    }
+  }
+
   return (
     <ProyectoContext.Provider
       value={{
@@ -310,7 +362,10 @@ const ProyectosProvider = ({ children }) => {
         tarea,
         modalEliminarTarea,
         handleModalEliminarTarea,
-        eliminarTarea
+        eliminarTarea,
+        submitColaborador,
+        colaborador,
+        agregarColaborador
       }}
     >
       {children}
