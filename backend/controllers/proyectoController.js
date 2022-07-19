@@ -1,5 +1,5 @@
 import Proyecto from "../models/Proyecto.js";
-import Usuario from '../models/Usuario.js'
+import Usuario from "../models/Usuario.js";
 
 const obtenerProyectos = async (req, res) => {
   const proyectos = await Proyecto.find()
@@ -92,36 +92,62 @@ const eliminarProyecto = async (req, res) => {
 };
 
 const buscarColaborador = async (req, res) => {
-  const { email } = req.body
+  const { email } = req.body;
 
-  const usuario = await Usuario.findOne({email}).select('-confirmado -createdAt -password -token -updatedAt -__v') //* findOne --> para encontrar un campo --/ Email
+  const usuario = await Usuario.findOne({ email }).select(
+    "-confirmado -createdAt -password -token -updatedAt -__v"
+  ); //* findOne --> para encontrar un campo --/ Email
 
-  if(!usuario) {
-    const error = new Error('Usuario no encontrado');
-    return res.status(404).json({msg: error.message})
+  if (!usuario) {
+    const error = new Error("Usuario no encontrado");
+    return res.status(404).json({ msg: error.message });
   }
 
-  // El colaborador no es el admin del proyecto
-  if(proyecto.creador.toString() === usuario.id.toString()) {
-    const error = new Error('El Creador del Proyecto, no puede ser colaborador');
-    return res.status(404).json({msg: error.message})
-  }
+  res.json(usuario);
 };
 
 const agregarColaborador = async (req, res) => {
   const proyecto = await Proyecto.findById(req.params.id);
 
-  if(!proyecto) {
-    const error = new Error('Proyecto No Encontrado')
-    return res.status(404).json({msg: error.message})
+  if (!proyecto) {
+    const error = new Error("Proyecto No Encontrado");
+    return res.status(404).json({ msg: error.message });
   }
 
   if (proyecto.creador.toString() !== req.usuario._id.toString()) {
-    const error = new Error('Acción no válida')
-    return res.status(404).json({msg: error.message})
+    const error = new Error("Acción no válida");
+    return res.status(404).json({ msg: error.message });
   }
 
-  console.log(req.body)
+  const { email } = req.body;
+
+  const usuario = await Usuario.findOne({ email }).select(
+    "-confirmado -createdAt -password -token -updatedAt -__v"
+  ); //* findOne --> para encontrar un campo --/ Email
+
+  if (!usuario) {
+    const error = new Error("Usuario no encontrado");
+    return res.status(404).json({ msg: error.message });
+  }
+
+  // El colaborador no es el admin del proyecto.
+
+  if (proyecto.creador.toString() === usuario._id.toString()) {
+    const error = new Error("El creador del proyecto no puede ser colaborador");
+    return res.status(404).json({ msg: error.message });
+  }
+
+  // Revisar que no este agregado al proyecto
+
+  if (proyecto.colaboradores.includes(usuario._id)) {
+    const error = new Error("El usuario ya pertenece al proyecto");
+    return res.status(404).json({ msg: error.message });
+  }
+
+  //Esta ok, se puede agregar
+  proyecto.colaboradores.push(usuario._id);
+  await proyecto.save();
+  res.json({ msg: "Colaborador agregado correctamente" });
 };
 
 const eliminarColaborador = async (req, res) => {};
