@@ -89,7 +89,11 @@ const eliminarTarea = async (req, res) => {
   }
 
   try {
-    await tarea.deleteOne();
+    const proyecto = await Proyecto.findById(tarea.proyecto);
+    proyecto.tareas.pull(tarea._id); // pull ==> mongoose // estudiar
+
+    await Promise.allSettled([await proyecto.save(), await tarea.deleteOne()]); //* estudiar --> comparar con Promise.all
+
     res.json({ msg: "La tarea se elimino" });
   } catch (error) {
     console.log(error);
@@ -106,16 +110,19 @@ const cambiarEstado = async (req, res) => {
     return res.status(404).json({ msg: error.message });
   }
 
-  if (tarea.proyecto.creador.toString() !== req.usuario._id.toString() && !tarea.proyecto.colaboradores.some(
-    (colaborador) => colaborador._id.toString() === req.usuario._id.toString()
-  )) {
+  if (
+    tarea.proyecto.creador.toString() !== req.usuario._id.toString() &&
+    !tarea.proyecto.colaboradores.some(
+      (colaborador) => colaborador._id.toString() === req.usuario._id.toString()
+    )
+  ) {
     const error = new Error("No tienes permisos");
     return res.status(403).json({ msg: error.message });
   }
 
-  tarea.estado = !tarea.estado
-  await tarea.save()
-  res.json(tarea)
+  tarea.estado = !tarea.estado;
+  await tarea.save();
+  res.json(tarea);
 };
 
 export {
