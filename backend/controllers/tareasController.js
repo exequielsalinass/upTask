@@ -103,7 +103,7 @@ const eliminarTarea = async (req, res) => {
 const cambiarEstado = async (req, res) => {
   const { id } = req.params;
 
-  const tarea = await Tareas.findById(id).populate("proyecto");
+  const tarea = await Tareas.findById(id).populate("proyecto")
 
   if (!tarea) {
     const error = new Error("Tarea no encontrada");
@@ -121,8 +121,12 @@ const cambiarEstado = async (req, res) => {
   }
 
   tarea.estado = !tarea.estado;
+  tarea.completado = req.usuario._id;
   await tarea.save();
-  res.json(tarea);
+
+  const tareaAlmacenada = await Tareas.findById(id).populate("proyecto").populate('completado')
+
+  res.json(tareaAlmacenada);
 };
 
 export {

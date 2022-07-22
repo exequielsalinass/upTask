@@ -3,22 +3,23 @@ import useProyectos from "../hooks/useProyectos.jsx";
 import useAdmin from "../hooks/useAdmin.jsx";
 
 function Tarea({ tarea }) {
-  const { descripcion, nombre, prioridad, fechaEntrega, estado, _id } = tarea;
-
   const { handleModalEditarTarea, handleModalEliminarTarea, completarTarea } =
     useProyectos();
 
   const admin = useAdmin();
 
+  const { descripcion, nombre, prioridad, fechaEntrega, estado, _id } = tarea;
+
   return (
     <div className="border-b p-5 flex justify-between items-center">
-      <div>
+      <div className="flex flex-col items-start">
         <p className=" mb-2 text-xl">{nombre}</p>
         <p className=" mb-2 text-sm text-gray-500 uppercase">{descripcion}</p>
         <p className=" mb-2 text-sm uppercase">
           {formatearFecha(fechaEntrega)}
         </p>
         <p className=" mb-2 text-gray-600">Prioridad: {prioridad}</p>
+        { estado && <p className="text-xs bg-green-500 uppercase p-1 rounded-lg text-white">Completada por: {tarea.completado.nombre}</p>}
       </div>
 
       <div className="flex gap-2">

@@ -15,7 +15,7 @@ function PreviewProyecto({ proyecto }) {
         </p>
 
         {auth._id !== creador && (
-          <p className="p-1 text-xs rounded-lg text-white bg-green-500 font-bold uppercase">
+          <p className="m-2 p-1 text-xs rounded-lg text-white bg-green-500 font-bold uppercase">
             Colaborador
           </p>
         )}
